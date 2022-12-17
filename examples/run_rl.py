@@ -50,6 +50,14 @@ def train(args):
             q_mlp_layers=[64,64],
             device=device,
         )
+    elif args.algorithm == 'ppo':
+        from rlcard.agents import PPOAgent
+        agent = PPOAgent(
+            num_actions=env.num_actions,#5
+            state_shape=env.state_shape[0],#54
+            mlp_layers=[64,64],
+            device=device,
+        )
     agents = [agent]
     for _ in range(1, env.num_players):
         agents.append(RandomAgent(num_actions=env.num_actions))
@@ -73,6 +81,9 @@ def train(args):
             # and the other players play randomly (if any)
             for ts in trajectories[0]:
                 agent.feed(ts)
+
+            if args.algorithm == 'ppo':
+                agent.update()
 
             # Evaluate the performance. Play with random agents.
             if episode % args.evaluate_every == 0:
@@ -120,6 +131,7 @@ if __name__ == '__main__':
         choices=[
             'dqn',
             'nfsp',
+            'ppo'
         ],
     )
     parser.add_argument(
@@ -158,3 +170,5 @@ if __name__ == '__main__':
     os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda
     train(args)
 
+# python3 examples/run_rl.py --algorithm=nfsp --env=no-limit-holdem --log_dir=experiments/no-limit_nfsp_result/
+# python3 examples/run_rl.py --algorithm=ppo --env=no-limit-holdem --log_dir=experiments/no-limit_ppo_result/
