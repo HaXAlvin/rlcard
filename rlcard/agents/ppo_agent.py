@@ -14,7 +14,7 @@ class PPOAgent(object):
                  num_actions=2,
                  state_shape=None,
                  mlp_layers=[256, 256],
-                 learning_rate=0.0001,
+                 learning_rate=0.001,
                  device=None):
 
         self.use_raw = False
@@ -24,7 +24,7 @@ class PPOAgent(object):
         self.buffer = RolloutBuffer()
 
         self.policy = ActorCritic(state_shape[0], num_actions, mlp_layers[0], mlp_layers[1])
-        self.optimizer = torch.optim.Adam([
+        self.optimizer = torch.optim.AdamW([
             {'params': self.policy.actor.parameters(), 'lr': learning_rate*0.1},
             {'params': self.policy.critic.parameters(), 'lr': learning_rate}
         ])
@@ -42,10 +42,6 @@ class PPOAgent(object):
         self.buffer.is_terminals.append(done)
 
     def select_action(self, state, training):
-        # self.steps +=1
-        # print(state)
-        # if self.steps == 3:
-        #     exit()
         #TODO: add more feature
         with torch.no_grad():
             obs = torch.FloatTensor(state["obs"]).to(self.device)
@@ -155,16 +151,12 @@ class ActorCritic(nn.Module):
         self.actor = nn.Sequential(
             nn.Linear(state_dim, actor_dim),
             nn.Tanh(),
-            nn.Linear(actor_dim, actor_dim),
-            nn.Tanh(),
             nn.Linear(actor_dim, num_actions),
             nn.Softmax(dim=-1)
         )
         # critic
         self.critic = nn.Sequential(
             nn.Linear(state_dim, critic_dim),
-            nn.Tanh(),
-            nn.Linear(critic_dim, critic_dim),
             nn.Tanh(),
             nn.Linear(critic_dim, 1)
         )

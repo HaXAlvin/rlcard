@@ -169,6 +169,3 @@ if __name__ == '__main__':
 
     os.environ["CUDA_VISIBLE_DEVICES"] = args.cuda
     train(args)
-
-# python3 examples/run_rl.py --algorithm=nfsp --env=no-limit-holdem --log_dir=experiments/no-limit_nfsp_result/
-# python3 examples/run_rl.py --algorithm=ppo --env=no-limit-holdem --log_dir=experiments/no-limit_ppo_result/
